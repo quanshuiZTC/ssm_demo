@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="jquery-3.3.1.min.js"></script>
+    <!-- 异步插件的地址-->
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+    <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+
+<body>
+
+
+
+<form class="layui-form" action="">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" >姓名:</label>
+            <div class="layui-input-inline">
+                <input type="tel"  name="name"  class="layui-input" placeholder="请输入姓名">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">年龄:</label>
+            <div class="layui-input-inline">
+                <input type="text" name="age"  class="layui-input" placeholder="请输入年龄">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">部门:</label>
+            <div class="layui-input-inline">
+                <select id="sel", name="deptno">
+                    <option>请选择</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <div class="layui-input-block">
+                <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1" id="buttonsubmit" >立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- 声明表格-->
+<table class="layui-hide" id="test" lay-filter="test"></table>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="deleteByIds" id>批量删除</button>
+        <button class="layui-btn layui-btn-sm" lay-event="queryclassxp">添加新的学生</button>
+    </div>
+</script>
+
+<script src="layui/layui.js"></script>
+
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+
+<script>
+    layui.use(['table','form','layer'], function(){//
+        var table = layui.table,$ = layui.$;
+        var form = layui.form;
+        var layer=layui.layer;
+
+        table.render({
+            elem: '#test'//表格id
+            ,url:'/fuzzyQueryLagui.do' //数据接口
+            ,toolbar:'#toolbarDemo'//头部添加工具栏
+            ,defaultToolbar:['filter','print']
+            ,page: true //开启分页
+            ,limit:5
+            ,limits:[2,3,4]
+            ,title: '用户数据表'
+            ,cols: [[ //表头
+                 {type: 'checkbox', fixed: 'left' }
+                ,{field: 'id', title: '编号', width:80, type: 'numbers'}
+                ,{field: 'name', title: '姓名', width: 177}
+                ,{field: 'sex', title: '性别', width:80, templet:'#sex'}
+                ,{field: 'age', title: '年龄', width: 80}
+                ,{field: 'bid', title: '班级', width: 80, sort: true,templet:'<div>{{d.classx.bname}}</div>'}
+                ,{field: 'picture', title: '照片', width: 80}
+                ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:150}
+            ]]
+        });
+
+        $.ajax({
+            type:"post",
+            url:'/classrooms.do',
+            success:function (data){
+                var a="  <option value='"+null+"'>选择班级</option>"
+                var str=""
+                for (var i= 0;i<data.length;i++){
+                    str+="<option value='"+data[i].id +"'>"+data[i].bname+"</option>";
+                }
+
+                $("#sel").html(a+str);
+                form.render('select');
+            },
+            error:function () {
+                alert("================")
+            }
+        });
+
+        //监听头工具事件
+        table.on('toolbar(test)', function(obj){
+            var checkStatus = table.checkStatus(obj.config.id);//
+            var data = checkStatus.data;//获取到它的值
+
+            switch(obj.event) {
+
+                case 'deleteByIds':
+                    if( data.length == 0){
+                        layer.msg('批量删除至少选中一项数据',function(){
+                        });
+                        return false;
+                    }//判断它必须要选择
+
+                    layer.confirm('真的要删除选中的'+ data.length +'项吗？',function(index) {
+                        // layer.close(index);
+                        // index = layer.load(1, {shade: [0.1, '#fff']});//删除提示
+                    });
+
+                        var student='';
+                        for (var i = 0;i<data.length ; i++) {
+                            student = student + "," + checkStatus.data[i].id;
+                        }
+
+                    $.ajax({
+                        type:'post',
+                        url:'/deleteByIds.do?id='+student,
+                        success:function(data) {
+
+                            if(data){
+                                layer.msg('操作成功!');
+                                table.reload("test")
+                            }else {
+                                parent.layer.msg('操作失败!', {icon: 5, time: 1000});
+                                table.reload("test")
+                            }
+
+                        }
+                     });
+                       break;
+
+                case 'queryclassxp':
+                    layer.open({
+                        title: '添加学生信息'
+                        ,area: ['800px', '600px']
+                        ,content:'xueShenBiao.html'
+                        ,type:2
+                    });
+
+                    break;
+
+            }
+
+        });
+        //点击查询按钮，重载表格
+        form.on('submit(demo1)', function(data) {
+
+            table.reload('test', {
+                where : {
+                    name: data.field.name
+                    ,age: data.field.age
+                    ,bid:data.field.bid
+                },
+                page : {
+                    curr : 1
+                }
+            });
+            return false;
+        });
+
+        //监听行工具事件
+        table.on('tool(test)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+            var tr = obj.tr; //获得当前行 tr 的 DOM 对象（如果有的话）
+
+
+             if(layEvent === 'del') { //删除
+                layer.confirm('真的删除行么', function (index) {
+
+                });
+
+                 $.ajax({
+                     type: "POST",
+                     dataType: "json",
+                     url: '/deletep.do?id='+data.id,
+                     success: function (data) {
+                         if(data){
+                             layer.msg('操作成功!');
+                             table.reload("test")
+                         }else {
+                             layer.msg('操作失败!');
+                             table.reload("test")
+                         }
+
+
+                     }
+                 });
+
+
+
+
+             }else if(layEvent ==='edit'){
+
+                 layer.open({
+                     title: '添加学生信息'
+                     ,area: ['800px', '600px']
+                    ,content:'/getByidp.do?id='+data.id
+                     ,type:2
+                 });
+                 // $.ajax({
+                 //     type:"post",
+                 //     dataType: "json",
+                 //     url: '/getByidp.do' ,
+                 // })
+
+             }//修改
+
+        });
+    });//
+
+
+
+
+
+
+
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn  layui-btn-xs" lay-event="edit" >编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script type="text/html" id="sex">
+    {{# if(d.sex=='m'){ }}
+    男
+    {{# }else if(d.sex=='f'){ }}
+    女
+    {{# } }}
+</script>
+
+
+
+
+</body>
+</html>

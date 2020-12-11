@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<!--引入样式-->
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+
+</head>
+
+<body>
+
+<table id="demo"  lay-filter="test"></table>
+<script src="/layui/layui.js"></script>
+
+<form class="layui-form" method="post" th:action="@{/updatep.do}" >
+    <input type="hidden" name="id" th:value="${querall.id}"/>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名:</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" lay-verify="title" autocomplete="off" th:value="${querall.name}" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">性别:</label>
+        <div class="layui-input-block">
+            <input type="radio" name="sex" value="m" title="男" th:checked="${querall.sex} eq 'm'">
+            <input type="radio" name="sex" value="f" title="女"  th:checked="${querall.sex} eq 'f'" >
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">年龄:</label>
+        <div class="layui-input-block">
+            <input type="text" name="age" lay-verify="title" autocomplete="off"  th:value="${querall.age}" class="layui-input">
+        </div>
+    </div>
+
+
+    <div class="layui-inline">
+        <label class="layui-form-label">班级:</label>
+        <div class="layui-input-inline">
+            <select id="sel" name="bid" >
+                <option th:each="user:${classrooms}" th:value="${user.id}" th:selected="${user.id eq querall.bid}" th:text="${user.bname}"></option>
+            </select>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script>
+
+    //Demo
+    layui.use(['form','layer'], function(){
+        var form = layui.form;
+
+
+
+        // //监听提交
+        // form.on('submit(formDemo)', function(data){
+        //
+        //     $.ajax({
+        //         type:'post',
+        //         data:JSON.stringify(data.field),
+        //         url:'/addlayui.do',
+        //         dataType:'json',
+        //         contentType:'application/json',
+        //         success:function(data) {
+        //             table.reload('test', {});
+        //             layer.msg('操作成功');
+        //
+        //         }
+        //     })
+        //
+        //     return false;
+        // });
+
+    });
+
+
+</script>
+
+</body>
+</html>
+

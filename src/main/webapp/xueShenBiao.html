@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<!--引入样式-->
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+
+</head>
+
+<body>
+
+<table id="demo" lay-filter="test"></table>
+<script src="/layui/layui.js"></script>
+
+<!--<script>-->
+<!--    layui.use('table', function(){-->
+<!--        var table = layui.table;-->
+
+<!--        //第一个实例-->
+<!--        table.render({-->
+<!--            elem: '#demo'-->
+<!--            ,height: 312-->
+<!--            ,url:'/fuzzyQueryLagui.do' //数据接口-->
+<!--            ,page: true //开启分页-->
+<!--            ,limit:5-->
+<!--            ,limits:[1,2,3,4]-->
+<!--            ,cols: [[ //表头-->
+<!--                {field: 'id', title: '编号', width:80, type: 'numbers'}-->
+<!--                ,{field: 'name', title: '姓名', width: 177}-->
+<!--                ,{field: 'sex', title: '性别', width:80, templet:'#sex'}-->
+<!--                ,{field: 'age', title: '年龄', width: 80}-->
+<!--                ,{field: 'bname', title: '班级', width: 80, sort: true,templet:'<div>{{d.classx.bname}}</div>'}-->
+<!--                ,{field: 'picture', title: '照片', width: 80}-->
+<!--            ]]-->
+<!--        });-->
+
+<!--    });-->
+
+<!--</script>-->
+<!--<script type="text/html" id="sex">-->
+<!--    {{# if(d.sex=='F'){ }}-->
+<!--    男-->
+<!--    {{# }else{ }}-->
+<!--    女-->
+<!--    {{# } }}-->
+<!--</script>-->
+
+
+<form class="layui-form" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名:</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" lay-verify="title" autocomplete="off" placeholder="请输入学生姓名" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">性别:</label>
+        <div class="layui-input-block">
+            <input type="radio" name="sex" value="m" title="男">
+            <input type="radio" name="sex" value="f" title="女" checked>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">年龄:</label>
+        <div class="layui-input-block">
+            <input type="text" name="age" lay-verify="title" autocomplete="off" placeholder="请输入学生年龄" class="layui-input">
+        </div>
+    </div>
+
+
+    <div class="layui-inline">
+        <label class="layui-form-label">班级:</label>
+        <div class="layui-input-inline">
+            <select id="sel" name="bid">
+                <option>请选择</option>
+            </select>
+        </div>
+    </div>
+
+<!--    <div class="layui-inline">-->
+<!--        <label class="layui-form-label">上传图片</label>-->
+<!--            <button type="button" class="layui-btn" id="test1">-->
+<!--                <i class="layui-icon">&#xe67c;</i>上传图片-->
+<!--            </button>-->
+<!--        <div class="layui-upload-list">-->
+<!--            <img class="layui-upload-img" id="demo1">-->
+<!--            <p id="demoText"></p>-->
+<!--        </div>-->
+<!--         </div>-->
+<!--    </div>-->
+
+
+
+
+
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+<script>
+
+    //Demo
+    layui.use(['form','layer'], function(){
+        var form = layui.form;
+        var $ = layui.$,layer=layui.layer;
+
+
+        //监听提交
+        form.on('submit(formDemo)', function(data){
+
+            $.ajax({
+                type:'post',
+                data:JSON.stringify(data.field),
+                url:'/addlayui.do',
+                dataType:'json',
+                contentType:'application/json',
+                success:function(data) {
+                    layer.msg('操作成功');
+                    table.reload("test")
+                    // if (data.code == 0) {
+                    //     parent.layer.msg('操作成功!');
+                    //     table.reload('test', {});
+                    // } else {
+                    //     parent.layer.msg('操作失败!', {icon: 5, time: 1000});
+                    //     table.reload('test',{});
+                    // }
+
+                }
+            })
+
+
+            return false;
+        });
+        $.ajax({
+            type:"post",
+            url:'/classrooms.do',
+            success:function (data){
+                var str=""
+                for (var i= 0;i<data.length;i++){
+                    str+="<option value='"+data[i].id +"'>"+data[i].bname+"</option>";
+                }
+                $("#sel").html(str);
+                form.render('select');
+            },
+            error:function () {
+                alert("================")
+            }
+        });
+
+    });
+
+</script>
+
+</body>
+</html>

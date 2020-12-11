@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+        <property name="url" value="jdbc:mysql://localhost:3306/sys?serverTimezone=UTC"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="root"></property>
+    </bean>
+
+
+
+    <bean id="settings" class="org.apache.ibatis.session.Configuration">
+        <property name="logImpl" value="org.apache.ibatis.logging.log4j.Log4jImpl"></property>
+    </bean>
+<!-- mybatis plus:   com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean-->
+<!-- mybatis:  org.mybatis.spring.SqlSessionFactoryBean   -->
+    <bean id="sessionFactory" class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean">
+            <property name="dataSource" ref="dataSource"></property>
+<!--          <property name="configuration" ref="settings"></property>-->
+        <!--批量命名别名-->
+        <property name="typeAliasesPackage" value="com.ztc.pojo"></property>
+        <!--  配置分页插件-->
+        <property name="plugins">
+            <array>
+                <!--分页插件-->
+                <bean class="com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor"></bean>
+            </array>
+        </property>
+
+        <!--批量扫描mapper-->
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.ztc.dao"></property>
+    </bean>
+
+
+</beans>
